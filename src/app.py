@@ -6,6 +6,7 @@ from tensorflow.keras.preprocessing import image
 from PIL import Image,ImageOps
 import numpy as np
 
+
 model = load_model('model.h5')
 
 def main():
@@ -22,7 +23,6 @@ def main():
     # Função do stramlit que faz o display da webpage
     st.markdown(html_template, unsafe_allow_html = True)
 
-
     st.write('')
     st.write('1º Clique sobre o botão Browse files e submeta a imagem para ser analisada')
     st.set_option('deprecation.showfileUploaderEncoding', False)
@@ -31,20 +31,24 @@ def main():
     if uploaded_file is not None:
         Img = Image.open(uploaded_file)
         st.image(Img, caption='Imagem Carregada', width=600)
-        st.write("")
+        st.write(uploaded_file)
+        st.write(uploaded_file.name)
         
-        x = f'C:/Users/devch/OneDrive/Área de Trabalho/Hackthon_COVID/src/COVID/{uploaded_file.name}'
-        img = image.load_img(x, target_size=(224, 224))
+        #x = f'C:/Users/devch/OneDrive/Área de Trabalho/Hackthon_COVID/src/COVID/{uploaded_file.name}'
+        img = image.load_img(uploaded_file.name, target_size=(299, 299))
         img = image.img_to_array(img)
         #img = img/255
+        img = img.reshape(1,299,299,3)
+
         prediction = model.predict(img)
 
-        st.success('A probabilidade de ser COVID-19 é  {} %'.format(prediction))
-        # result = model.predict(img)
-        # #st.write('%s (%.2f%%)' % (label[1], label[2]*100))
-        # #result = prediction(file)
+        if(np.argmax(prediction) == 3.0):
+            st.error('A probabilidade de ser COVID-19 é  {} %'.format(prediction))
+        else:
+            st.success(prediction)
+            st.success(prediction[0])
+            st.success('Não existe a probabilidade de ser COVID-19')
         
-
 
 if __name__=='__main__':
     main()
